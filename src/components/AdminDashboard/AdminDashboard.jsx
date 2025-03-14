@@ -15,17 +15,20 @@ export default function AdminDashboard({ users, saveUsers }) {
   useEffect(() => {
     const questionsRef = ref(database, 'questions')
     onValue(questionsRef, (snapshot) => {
-      setQuestions(snapshot.val() || [])
+      const data = snapshot.val()
+      setQuestions(data ? Object.values(data) : []) // Convert object to array
     })
 
     const answersRef = ref(database, 'answers')
     onValue(answersRef, (snapshot) => {
-      setAnswers(snapshot.val() || [])
+      const data = snapshot.val()
+      setAnswers(data ? Object.values(data) : []) // Convert object to array
     })
 
     const usersRef = ref(database, 'users')
     onValue(usersRef, (snapshot) => {
-      saveUsers(snapshot.val() || [])
+      const data = snapshot.val()
+      saveUsers(data ? Object.values(data) : []) // Convert object to array
     })
   }, [saveUsers])
 
@@ -41,7 +44,7 @@ export default function AdminDashboard({ users, saveUsers }) {
       set(ref(database, 'users'), updatedUsers)
       setNewUser('')
     }
-  
+  }
 
   const addQuestion = () => {
     if (newQuestion && newOptions) {
@@ -58,9 +61,6 @@ export default function AdminDashboard({ users, saveUsers }) {
     }
   }
 
-
-}
-
   const getChartData = (questionId) => {
     const questionAnswers = answers.filter(a => a.questionId === questionId)
     const question = questions.find(q => q.id === questionId)
@@ -74,7 +74,7 @@ export default function AdminDashboard({ users, saveUsers }) {
   return (
     <div className="admin-container">
       <h1>Admin Dashboard</h1>
-      
+
       <div className="section">
         <h2>Manage Users</h2>
         <input
@@ -90,7 +90,11 @@ export default function AdminDashboard({ users, saveUsers }) {
               {!user.isAdmin && (
                 <>
                   <button
-                    onClick={() => saveUsers(users.filter(u => u.username !== user.username))}
+                    onClick={() => {
+                      const updatedUsers = users.filter(u => u.username !== user.username)
+                      saveUsers(updatedUsers)
+                      set(ref(database, 'users'), updatedUsers)
+                    }}
                     className="admin-button danger"
                   >
                     Delete
@@ -101,6 +105,7 @@ export default function AdminDashboard({ users, saveUsers }) {
                         u.username === user.username ? { ...u, hasSubmitted: false } : u
                       )
                       saveUsers(updatedUsers)
+                      set(ref(database, 'users'), updatedUsers)
                     }}
                     className="admin-button warning"
                   >
@@ -135,6 +140,7 @@ export default function AdminDashboard({ users, saveUsers }) {
               <button
                 onClick={() => {
                   const updatedQuestions = questions.filter(q => q.id !== question.id)
+                  setQuestions(updatedQuestions)
                   set(ref(database, 'questions'), updatedQuestions)
                 }}
                 className="admin-button danger"
