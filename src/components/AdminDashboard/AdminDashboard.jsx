@@ -11,41 +11,55 @@ export default function AdminDashboard({ users, saveUsers }) {
   const [questions, setQuestions] = useState([])
   const [answers, setAnswers] = useState([])
 
-  // Load questions and answers from Firebase
+  // Load data from Firebase
   useEffect(() => {
     const questionsRef = ref(database, 'questions')
     onValue(questionsRef, (snapshot) => {
-      const data = snapshot.val()
-      setQuestions(data || [])
+      setQuestions(snapshot.val() || [])
     })
 
     const answersRef = ref(database, 'answers')
     onValue(answersRef, (snapshot) => {
-      const data = snapshot.val()
-      setAnswers(data || [])
+      setAnswers(snapshot.val() || [])
     })
-  }, [])
+
+    const usersRef = ref(database, 'users')
+    onValue(usersRef, (snapshot) => {
+      saveUsers(snapshot.val() || [])
+    })
+  }, [saveUsers])
 
   const addUser = () => {
     if (newUser) {
-      const updatedUsers = [...users, { username: newUser, isAdmin: false, hasSubmitted: false }]
+      const updatedUsers = [...users, { 
+        username: newUser, 
+        isAdmin: false, 
+        hasSubmitted: false 
+      }]
+      // Update both local state and Firebase
       saveUsers(updatedUsers)
+      set(ref(database, 'users'), updatedUsers)
       setNewUser('')
     }
-  }
+  
 
   const addQuestion = () => {
     if (newQuestion && newOptions) {
       const updatedQuestions = [...questions, {
         id: uuidv4(),
-        text: newQuestion,
-        options: newOptions.split(',')
+        text: newQuestion.trim(),
+        options: newOptions.split(',').map(opt => opt.trim())
       }]
+      // Update both local state and Firebase
+      setQuestions(updatedQuestions)
       set(ref(database, 'questions'), updatedQuestions)
       setNewQuestion('')
       setNewOptions('')
     }
   }
+
+
+}
 
   const getChartData = (questionId) => {
     const questionAnswers = answers.filter(a => a.questionId === questionId)

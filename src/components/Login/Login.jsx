@@ -4,11 +4,18 @@ import './Login.css'
 
 export default function Login({ users }) {
   const [username, setUsername] = useState('')
+  const [error, setError] = useState('') // Add error state
   const navigate = useNavigate()
 
   const handleLogin = (e) => {
     e.preventDefault()
-    const user = users.find(u => u.username === username)
+    const trimmedUsername = username.trim() // Trim whitespace
+    if (!trimmedUsername) {
+      setError('Username cannot be empty') // Validate input
+      return
+    }
+
+    const user = users.find(u => u.username === trimmedUsername)
 
     if (user) {
       if (user.isAdmin) {
@@ -28,7 +35,7 @@ export default function Login({ users }) {
         }
       }
     } else {
-      alert('Invalid username')
+      setError('Invalid username') // Show error message
     }
   }
 
@@ -40,9 +47,13 @@ export default function Login({ users }) {
           type="text"
           placeholder="Username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            setUsername(e.target.value)
+            setError('') // Clear error on input change
+          }}
           className="login-input"
         />
+        {error && <p className="error-message">{error}</p>} {/* Display error */}
         <button type="submit" className="login-button">Login</button>
       </form>
     </div>
