@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app'
 import { getDatabase, ref, set, onValue } from 'firebase/database'
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDOUSKukUIBExLkzZ9c8DQ4q7SUb9EM4l0",
+  apiKey: "",
   authDomain: "survey-app-53df0.firebaseapp.com",
   projectId: "survey-app-53df0",
   storageBucket: "survey-app-53df0.appspot.com",
